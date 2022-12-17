@@ -1,61 +1,103 @@
 import maps, { EmojisSimbols, EMOJIS } from "../maps";
 
 const $canvas = document.querySelector("canvas");
+const $lives = document.querySelector(".lives");
 
 const game = $canvas?.getContext("2d");
 
+// const map = []
+
 export class GameControler {
-  static playerPosition = {
+  // VARS
+  private static playerPosition = {
     x: 0,
     y: 0,
   };
-  static map: string[][] = [];
-  static elementSize: number;
+  private static map: string[][] = [];
+  private static elementSize: number;
+  private static level: number;
+  private static lives: number = 5;
+
+  private static renderlives = () => {
+    let hearts: string = "";
+    for (let i = 0; i < this.lives; i++) {
+      hearts += "🤍";
+    }
+    if ($lives) {
+      $lives.innerHTML = hearts;
+    }
+  };
+
+  private static getMap = (level: number) => {
+    if (maps.length > level - 1) {
+      this.level = level;
+      const map = maps[level - 1];
+      const mapRows = map.trim().split("\n");
+      const mapRowCols = mapRows.map((row) => row.trim().split(""));
+      return mapRowCols;
+    }
+    return this.map;
+  };
 
   private static deleteMap = () => {
     game?.clearRect(0, 0, Number($canvas?.width), Number($canvas?.width));
   };
 
-  
-
   static startGame = (): void => {
-    const map = maps[0];
-    const mapRows = map.trim().split("\n");
-    const mapRowCols = mapRows.map((row) => row.trim().split(""));
-    this.map = mapRowCols;
+    this.renderlives();
+    this.map = this.getMap(1);
 
     if ($canvas && game) {
       $canvas.width = $canvas.clientHeight;
       $canvas.height = $canvas.clientHeight;
-      const elementSize = $canvas.clientHeight / mapRows.length - 2;
-      // game.textAlign = 'end';
+      const elementSize = $canvas.clientHeight / this.map.length - 2;
       this.elementSize = elementSize;
       game.font = `${elementSize}px Verdana`;
       this.renderElements(true);
       this.renderBtns();
     }
   };
+  private static win = () => {
+    const level = this.level + 1;
+    this.map = this.getMap(level);
+    setTimeout(() => {
+      this.renderElements(true);
+    }, 100);
+  };
+
+  private static levelFail = () => {
+    if (this.lives > 1) this.lives -= 1;
+    else {
+      this.lives = 5;
+      this.map = this.getMap(1);
+    }
+    this.renderlives();
+    setTimeout(() => {
+      this.renderElements(true);
+    });
+  };
 
   static renderElements = (renderPlayer?: boolean) => {
+    console.log("render");
+
     this.deleteMap();
 
     this.map.forEach((row, rowI) => {
       row.forEach((col, colI) => {
-        const positionX = Math.round(this.elementSize * colI);
-        const positionY = Math.round(this.elementSize * (rowI + 1));
-        const playerPosY = Math.round(this.playerPosition.y)
-        const playerPosX = Math.round(this.playerPosition.x)
+        const positionX = Math.trunc(this.elementSize * colI);
+        const positionY = Math.trunc(this.elementSize * (rowI + 1));
+        const playerPosY = Math.trunc(this.playerPosition.y);
+        const playerPosX = Math.trunc(this.playerPosition.x);
         const emoji = EMOJIS[col as EmojisSimbols];
 
-        if(emoji === EMOJIS["I"]){
-          if (playerPosY === positionY && playerPosX===positionX) {
-            console.log("Win");    
-          }
-        }
+        const diferenceX = Math.abs(playerPosX - positionX);
+        const diferenceY = Math.abs(playerPosY - positionY);
 
-        if (emoji === EMOJIS["X"]){
-          if (playerPosY === positionY && playerPosX===positionX) {
-            console.log("Game over");    
+        if (diferenceX < 2 && diferenceY < 2 && !renderPlayer) {
+          if (emoji === EMOJIS["I"]) {
+            this.win();
+          } else if (emoji === EMOJIS["X"]) {
+            this.levelFail();
           }
         }
 
