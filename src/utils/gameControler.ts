@@ -2,6 +2,8 @@ import maps, { EmojisSimbols, EMOJIS } from "../maps";
 
 const $canvas = document.querySelector("canvas");
 const $lives = document.querySelector(".lives");
+const $time = document.querySelector(".time");
+const $record = document.querySelector(".record");
 
 const game = $canvas?.getContext("2d");
 
@@ -16,9 +18,13 @@ export class GameControler {
   private static map: string[][] = [];
   private static elementSize: number;
   private static level: number;
-  private static lives: number = 5;
+  private static lives: number=5;
+  private static timer: number | undefined;
 
-  private static renderlives = () => {
+  private static renderlives = (reset?:boolean) => {
+    if(reset){
+      this.lives=5
+    }
     let hearts: string = "";
     for (let i = 0; i < this.lives; i++) {
       hearts += "🤍";
@@ -27,16 +33,42 @@ export class GameControler {
       $lives.innerHTML = hearts;
     }
   };
+  private static clearTimer = (win?:boolean) => {
+    clearInterval(this.timer);
+    if ($time && $record && win) {
+      const time = $time.innerHTML;
+      const lastRecord = Number(localStorage.getItem("timeRecord"));
+      if (!lastRecord || lastRecord > Number(time)) {
+        localStorage.setItem("timeRecord", time);
+      }
+      $record.innerHTML = `Record: ${localStorage.getItem("timeRecord") ?? ""}ds`;
+    }
+  };
+
+  private static setTimer = () => {
+    let time = 1;
+    if ($time) {
+      this.timer = setInterval(() => {
+        $time.innerHTML = String(time);
+        time++;
+      }, 100);
+    }
+  };
 
   private static getMap = (level: number) => {
-    if (maps.length > level - 1) {
-      this.level = level;
-      const map = maps[level - 1];
+    this.level = level;
+    const map = maps[level - 1];
+    if (map) {
       const mapRows = map.trim().split("\n");
       const mapRowCols = mapRows.map((row) => row.trim().split(""));
       return mapRowCols;
+    } else {
+      this.clearTimer(true);
+      this.map = this.getMap(1)
+      this.setTimer()
+      this.renderlives(true)
+      return this.map;
     }
-    return this.map;
   };
 
   private static deleteMap = () => {
@@ -44,6 +76,11 @@ export class GameControler {
   };
 
   static startGame = (): void => {
+    const lastRecord = localStorage.getItem("timeRecord")
+    if ($record && lastRecord) {
+      $record.innerHTML = `Record: ${lastRecord ?? ""}ds`
+    }
+    this.setTimer();
     this.renderlives();
     this.map = this.getMap(1);
 
@@ -68,7 +105,9 @@ export class GameControler {
   private static levelFail = () => {
     if (this.lives > 1) this.lives -= 1;
     else {
-      this.lives = 5;
+      this.clearTimer()
+      this.setTimer()
+      this.renderlives(true)
       this.map = this.getMap(1);
     }
     this.renderlives();

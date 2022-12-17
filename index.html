@@ -8,16 +8,21 @@
   </head>
   <body>
     <main class="game-container">
-      <canvas id="game"></canvas>
+      <div class="stadistics">
+        <p>Time: <span class="time"></span>ds</p>        
+        <span class="lives"></span>
+      </div>
+      <div>
+        <canvas id="game"></canvas>
+        <p class="record"></p>
+      </div>
       <div class="btns">
         <button id="up">Arriba</button>
         <button id="left">Izquierda</button>
         <button id="right">Derecha</button>
         <button id="down">Abajo</button>
       </div>
-      <div class="Stadistics">
-        <p class="lives"></p>
-      </div>
+
     </main>
     <script type="module" src="./src/main.ts"></script>
   </body>

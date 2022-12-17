@@ -1,3 +1,7 @@
+*{
+  box-sizing: border-box;
+}
+
 body {
   background-color: indigo;
   color: #fff;  
@@ -8,19 +12,22 @@ body {
 
 .game-container {
   display: flex;
+  flex-direction: column;
+  justify-content:space-around;
   align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  height: 100vh;
-  width: 100vw;
+  min-height: 100vh;
+  min-width: 100vw;
+  padding: 1vmin 0;
 }
 
 canvas {
-  width: 80vmin;
-  height: 80vmin;
+  width: 70vmin;
+  height: 70vmin;
+  margin-bottom: 1rem ;
   outline: 4px solid #ff6600;
   border-radius: 8px;
   background-color: #feff9d;
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.481);
 }
 
 .btns {
@@ -34,28 +41,35 @@ canvas {
 button {
   background-color: #fdef05;
   border-radius: 8px;
-  border-color: #ff6600;
+  /* border-color: #ff6600; */
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.481);
   font-family: inherit;
   margin: 0;
-  padding: 5px 20px;
-  width: 100px;
+  padding: 0.5rem 2rem;
 }
+
+button:active{
+  background-color: #c8be04
+}
+
+
+
 button:not(:last-child) {
   margin-right: 10px;
 }
 
-.messages {
+.stadistics {
   display: flex;
-  flex-wrap: wrap;
-  margin: 0 auto;
-  width: 80%;
-  max-width: 460px;
+  flex-direction: column;
+  align-items: center;
+  font-size: 2rem;
+}
+p{
+  margin: 0;
 }
 
-p {
-  display: block;
-  margin: 0;
-  width: 100%;
+.record{
+  font-size: 1rem;
 }
 
 .lives{
@@ -65,4 +79,9 @@ p {
 @media (max-width: 440px) {
   button { margin-top: 25px; }
   #up, #down { margin-left: 100%; margin-right: 100%; }
+}
+@media (min-width: 640px) {
+  .btns{
+    display: none;
+  }
 }
